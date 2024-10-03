@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemoryGame</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            display: flex;
+            width: 400px;
+            /*border:1px solid red;*/
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+
+        }
+
+        .card {
+            width: 100px;
+            height: 100px;
+            margin: 10px;
+            background-color: #fff;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            font-size: 24px;
+            transition: transform 0.4s;
+        }
+
+        .card:hover {
+            transform: scale(1.1) rotateY(180deg);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .flipped span {
+            display: block;
+        }
+
+        .matched {
+            background-color: lightgreen;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" id="container"></div>
+    <div class="message" id="message"></div>
+    <div class="score" id="score">score: 0</div>
+    <div class="timer" id="timer">Time Left: 30s</div>
+    <script>
+        const container = document.getElementById('container');
+        const message = document.getElementById('message');
+        const scoreDisplay = document.getElementById('score');
+        const timerDisplay = document.getElementById('timer');
+        const fruits = ['🍉', '🍌', '🍇', '🍎', '🍓', '🍒', '🥝', '🍍'];
+        const cards = [...fruits, ...fruits];
+        //console.log(cards);
+        let flippedCards = [];
+        let matches = 0;
+        let score = 0;
+        let timer = 30;
+        let timeInterval;
+        let comparing = false;
+        cards.forEach((fruit, index) => {
+            const card = document.createElement('div');
+            card.classList.add('card');
+            card.dataset.index = index;
+            const cardContent = document.createElement('span');
+            cardContent.textContent = fruit;
+            cardContent.classList.add('hidden')
+            card.appendChild(cardContent);
+            card.addEventListener('click', handleCardClick);
+            container.appendChild(card);
+        })
+        timeInterval = setInterval(updateTime, 1000)
+
+
+        function handleCardClick() {
+            const clickedCard = this;
+            console.log(clickedCard);
+            const index = clickedCard.dataset.index1;
+            if (flippedCards.length === 2) {
+                return;
+            }
+            showCard(clickedCard);
+            flippedCards.push(clickedCard);
+            console.log('flippedCards', flippedCards);
+            if (flippedCards.length === 2) {
+                comparing = true;
+                setTimeout(() => {
+                    const [firstCard, secondCard] = flippedCards;
+                    if (firstCard.textContent === secondCard.textContent) {
+                        firstCard.classList.add('matched');
+                        secondCard.classList.add('matched');
+                        matches++;
+                        score += 10;
+                        updateScore();
+                        if (matches === fruits.length) {
+                            showMessage();
+                        }
+                    }
+                    else {
+                        hidecard(firstCard);
+                        hidecard(secondCard);
+                    }
+                    flippedCards = [];
+                }, 1000);
+            }
+        }
+        function hidecard(card) {
+            card.children[0].classList.add('hidden');
+            card.classList.remove('flipped');
+        }
+        function showCard(card) {
+            card.classList.add('flipped');
+            card.children[0].classList.remove('hidden');
+        }
+        function showMessage() {
+            alert("Congratulations! you have matched all the pairs")
+        }
+        function updateScore() {
+            scoreDisplay.textContent = 'score:' + score;
+        }
+        function updateTime() {
+            if (timer > 0) {
+                timer--;
+                timerDisplay.textContent = 'Time left: ' + timer + 's';
+            }
+            else {
+                if (matches === fruits.length) {
+                    clearInterval()
+                    showMessage();
+                }
+                else {
+                    alert('Try next time')
+                }
+            }
+        }
+
+    </script>
+
+</body>
+
+</html>
